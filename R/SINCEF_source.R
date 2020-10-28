@@ -179,53 +179,44 @@ nm<-function(x){
 #'
 #'@param d3 one of the three dissimilarity matrices, including Pearson_dism, Cosine_dism and Dual_dism
 #'
-#'@param nei_k the n_neighbors to be used in UMAP transformation. The recommended value range is 5~30.
-#'
 #'@param is_scale whether to use normalization for reconstructing dissimilarity matrix.
 #'
-#'@return List which is composed of normalized reconstructed dissimilarity matrix,and its hierarchical clustering object.
+#'@param dim embedded dimensions for initial dissimilarity matrices, recommended between 2 and 5.
+#'
+#'@return list which is composed of reconstructed dissimilarity matrix,and its hierarchical clustering object.
 #'
 #'@examples
 #'
 #'dism_pearson <- Output_DISM(k_cpu=8,data_cell,method='Pearson')
 #'dism_cosine  <- Output_DISM(k_cpu=8,data_cell,method='Cosine')
 #'dism_dual    <- Output_DISM(k_cpu=8,data_cell,method='Dual')
-#'rsm          <- Get_resm(dism_cosine,dism_dual,dism_pearson,16,is_scale="TRUE")
+#'rsm_obj      <- Get_resm(dism_cosine,dism_dual,dism_pearson,is_scale=T)
 #'
 #'@export
 #'
-#'@import umap
-Get_resm <- function(d1,d2,d3,nei_k,is_scale){
-  if(is_scale=='TRUE'){
-    f1  <- umap(d1,input='dist',n_neighbors=nei_k)
-    f2  <- umap(d2,input='dist',n_neighbors=nei_k)
-    f3  <- umap(d3,input='dist',n_neighbors=nei_k)
-    em1 <- nm(f1$layout)
-    em2 <- nm(f2$layout)
-    em3 <- nm(f3$layout)
-    em  <- as.matrix(dist(cbind(em1,em2,em3)))
-    hc_obj <- hclust(dist(cbind(em1,em2,em3)),method = 'ward.D2')
-    out <- list(em,hc_obj)
-    names(out) <- c("RCDM","HC_obj")
-    return(out)
-  }
-  if(is_scale=='FALSE'){
-    f1  <- umap(d1,input='dist',n_neighbors=nei_k)
-    f2  <- umap(d2,input='dist',n_neighbors=nei_k)
-    f3  <- umap(d3,input='dist',n_neighbors=nei_k)
-    em1 <- f1$layout
-    em2 <- f2$layout
-    em3 <- f3$layout
-    em  <- as.matrix(dist(cbind(em1,em2,em3)))
-    hc_obj <- hclust(dist(cbind(em1,em2,em3)),method = 'ward.D2')
-    out <- list(em,hc_obj)
-    names(out) <- c("RCDM","HC_obj")
-    return(out)
+#'@import uwot
+Get_resm <- function(d1,d2,d3,dim,is_scale){
+  f1 <- umap(as.dist(d1),n_components = dim)
+  f2 <- umap(as.dist(d2),n_components = dim)
+  f3 <- umap(as.dist(d3),n_components = dim)
+  if(is_scale==TRUE){
+    f1 = nm(f1)
+    f2 = nm(f2)
+    f3 = nm(f3)
   }
   else{
-    print('Check your settings...')
+    f1 = f1
+    f2 = f2
+    f3 = f3
   }
-
+  dm1<- as.matrix(dist(f1))
+  dm2<- as.matrix(dist(f2))
+  dm3<- as.matrix(dist(f3))
+  res <- 1/3 * (dm1+dm2+dm3)
+  hc_obj <- hclust(as.dist(res),method = 'ward.D2')
+  out <- list(res,hc_obj)
+  names(out) <- c("RCDM","HC_obj")
+  return(out)
 }
 
 #'@title Hierarchical clustering visualization
