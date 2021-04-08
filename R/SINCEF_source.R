@@ -19,11 +19,11 @@ mat_F <- function(df){
 
 #'@title Process function
 #'
-#'@description Get the corresponding dissimilarity matrix using single-cell methylation data
+#'@description Get the corresponding dissimilarity matrix using single-cell methylation profiles
 #'
 #'@param list
 #'
-#'@return Pearson dissimilarity object
+#'@return Pearson similarity matrix
 Get_Pearson <- function(j,data){
 
   cor_cp <- function(i,j,list){
@@ -44,7 +44,7 @@ Get_Pearson <- function(j,data){
 
 #'@title Process function
 #'
-#'@description Get the corresponding dissimilarity matrix using single-cell methylation data
+#'@description Get the corresponding similarity matrix using single-cell methylation profiles
 #'
 #'@param list
 #'
@@ -74,9 +74,9 @@ Get_Cosine <- function(j,data){
 #'@param list
 #'
 #'@return Dual dissimilarity object
-Get_Dual <- function(j,data){
+Get_Hamming <- function(j,data){
 
-  cor_dua <- function(i,j,list){
+  cor_ham <- function(i,j,list){
     dm1 <- mat_F(list[[j]])
     dm2 <- mat_F(list[[i]])
     dm <- merge(dm1,dm2,by="chr_P",all=F)
@@ -88,12 +88,12 @@ Get_Dual <- function(j,data){
     rm(dm)
   }###calculate cosine correlation coefficient
 
-  res_cor <- lapply(1:length(data),cor_dua,j,data)
+  res_cor <- lapply(1:length(data),cor_ham,j,data)
   res_cor <- as.data.frame(unlist(res_cor))
   return(res_cor)
 }
 
-#'@title Dissimilarity object
+#'@title similarity object
 #'
 #'@description Get the corresponding dissimilarity matrix using single-cell methylation data
 #'
@@ -124,7 +124,7 @@ Output_DISM <- function(k_cpu,data,method){
     names(res_mat) <- c(1:length(data))
     return(res_mat)
   }
-  if(method=='Dual'){
+  if(method=='Hamming'){
     cl <- makeCluster(k_cpu)
     clusterExport(cl,"mat_F",envir = environment())
     results <- parLapply(cl,1:length(data),Get_Dual,data)
@@ -148,25 +148,6 @@ Output_DISM <- function(k_cpu,data,method){
     print('Something wrong with your settings,please check...')
   }
 
-}
-
-#'@title Normalization
-#'
-#'@description Normalize a vector or matrix
-#'
-#'@param x vectors or matrix
-#'
-#'@return vectors or matrix
-#'
-#'@examples x_nm <- nm(x)
-#'
-#'@export
-nm<-function(x){
-    num <- ncol(x)
-    for (i in 1:num) {
-      x[,i] <- (x[,i]-min(x[,i]))/(max(x[,i])-min(x[,i]))
-    }
-    return(x)
 }
 
 #'@title Dissimilarity matrix reconstruction
