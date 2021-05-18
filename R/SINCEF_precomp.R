@@ -23,14 +23,14 @@ mat_F <- function(df){
 #'
 #'@param list
 #'
-#'@return Pearson similarity matrix
+#'@return Pearson distance matrix
 Get_Pearson <- function(j,data){
 
   cor_cp <- function(i,j,list){
     dm1 <- mat_F(list[[j]])
     dm2 <- mat_F(list[[i]])
     dm <- merge(dm1,dm2,by="chr_P",all=F)
-    pv <- cor(dm[,2],dm[,3])
+    pv <- 1-cor(dm[,2],dm[,3])
     return(pv)
     rm(dm1)
     rm(dm2)
@@ -55,7 +55,7 @@ Get_Cosine <- function(j,data){
     dm1 <- mat_F(list[[j]])
     dm2 <- mat_F(list[[i]])
     dm <- merge(dm1,dm2,by="chr_P",all=F)
-    cos <- sum(dm[,2]*dm[,3])/sqrt((sum(dm[,2]^2)*sum(dm[,3]^2)))
+    cos <- 1- sum(dm[,2]*dm[,3])/sqrt((sum(dm[,2]^2)*sum(dm[,3]^2)))
     return(cos)
     rm(dm1)
     rm(dm2)
@@ -73,7 +73,7 @@ Get_Cosine <- function(j,data){
 #'
 #'@param list
 #'
-#'@return Dual dissimilarity object
+#'@return Hamming dissimilarity object
 Get_Hamming <- function(j,data){
 
   cor_ham <- function(i,j,list){
@@ -81,12 +81,12 @@ Get_Hamming <- function(j,data){
     dm2 <- mat_F(list[[i]])
     dm <- merge(dm1,dm2,by="chr_P",all=F)
     dm$cot <- ifelse(dm[,2]==dm[,3],1,0)
-    dua <- sum(dm$cot)/length(dm$cot)
+    dua <- 1- sum(dm$cot)/length(dm$cot)
     return(dua)
     rm(dm1)
     rm(dm2)
     rm(dm)
-  }###calculate cosine correlation coefficient
+  }
 
   res_cor <- lapply(1:length(data),cor_ham,j,data)
   res_cor <- as.data.frame(unlist(res_cor))
@@ -101,7 +101,7 @@ Get_Hamming <- function(j,data){
 #'
 #'@param data R list which is composed of dataframes of cell methylation information, including "Chromosome number", "locus position", and "methylation_level(0 or 1)"
 #'
-#'@param method the distance measure to be used. This must be one of "Cosine" ,"Dual" or "Pearson"
+#'@param method the distance measure to be used. This must be one of "Cosine" ,"Hamming" or "Pearson"
 #'
 #'@return the corresponding dissimilarity matrix
 #'
