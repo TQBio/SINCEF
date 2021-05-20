@@ -1,11 +1,6 @@
 # SINCEF
 Clustering single-cell methylation data using a novel distance based on spectral embedding aggregation. SINCEF contains both R and python scripts to achieve the clustering process.
 
-There are three major procedures: 
-1) Generation of multiple basic or original distance matrices in R environment; 
-2) Perform SINCEF algorithm to reconstruct the distance matrix and  implement hierarchical clustering to yield cell predicted labels in python environment; 
-3) Subsequent analysis.
-
 # Tutorial
 
 ## Step 1 
