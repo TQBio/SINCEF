@@ -62,3 +62,12 @@ def myKNN(S, k, sigma=1.0):
             A[i][j] = np.exp(-S[i][j]/2/sigma/sigma)
             A[j][i] = A[i][j] # mutually
     return A
+
+###Input: dism—— the distance matrix; max_clus—— the maximum possible number of clusters
+###output: A—— the affinity matrix
+def find_clus(dism, max_clus):
+    scr = []
+    for i in range(2,max_clus):
+        sil = metrics.silhouette_score(dism, hc_pre(dism,i), metric='precomputed')
+        scr = np.array([i,sil])
+    return(scr)
