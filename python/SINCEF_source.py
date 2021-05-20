@@ -12,27 +12,14 @@ from sklearn.manifold import SpectralEmbedding
 from sklearn.cluster import AgglomerativeClustering
 import pandas as pd
 
-###Input: S—— the distance matrix
-###output: A—— the affinity matrix
-def myKNN(S, k, sigma=1.0):
-    N = len(S)
-    A = np.zeros((N,N))
-    for i in range(N):
-        dist_with_index = zip(S[i], range(N))
-        dist_with_index = sorted(dist_with_index, key=lambda x:x[0])
-        neighbours_id = [dist_with_index[m][1] for m in range(k+1)] 
-        for j in neighbours_id: # xj is xi's neighbour
-            A[i][j] = np.exp(-S[i][j]/2/sigma/sigma)
-            A[j][i] = A[i][j] # mutually
-    return A
-
-###Input: aff1,aff2,aff3—— the affinity matrices, corresponding to Cosine, Hamming and Pearson distance; 
+###Input: dism1,dism2,dism3—— the distance matrices, corresponding to Cosine, Hamming and Pearson distance; 
 ###       dim—— the number of embedding dimensions;
+###       C—— the number of clusters;
 ###output: dism—— the reconstructed novel distance matrix
-def SPC_Embedding(aff1,aff2,aff3,dim):
-    fs1 = SpectralEmbedding(n_components=dim, random_state=123, affinity='precomputed').fit_transform(aff1)
-    fs2 = SpectralEmbedding(n_components=dim, random_state=123, affinity='precomputed').fit_transform(aff2)
-    fs3 = SpectralEmbedding(n_components=dim, random_state=123, affinity='precomputed').fit_transform(aff3)
+def SPC_Embedding(dism1,dism2,dism3,dim,C):
+    fs1 = SpectralEmbedding(n_components=dim, random_state=123, affinity='precomputed').fit_transform(myKNN(dism1, 2*C))
+    fs2 = SpectralEmbedding(n_components=dim, random_state=123, affinity='precomputed').fit_transform(myKNN(dism2, 2*C))
+    fs3 = SpectralEmbedding(n_components=dim, random_state=123, affinity='precomputed').fit_transform(myKNN(dism3, 2*C))
     fs_dis = pd.concat([pd.DataFrame(fs1),pd.DataFrame(fs2),pd.DataFrame(fs3)],axis=1)
     dism = squareform(pdist(fs_dis,metric='euclidean'))
     return(dism)
@@ -61,3 +48,17 @@ def get_NMI(c1,c2):
 def get_silhouette_score(L,dism):
     score = metrics.silhouette_score(dism,L,metric='precomputed')
     return(score)
+
+###Input: S—— the distance matrix
+###output: A—— the affinity matrix
+def myKNN(S, k, sigma=1.0):
+    N = len(S)
+    A = np.zeros((N,N))
+    for i in range(N):
+        dist_with_index = zip(S[i], range(N))
+        dist_with_index = sorted(dist_with_index, key=lambda x:x[0])
+        neighbours_id = [dist_with_index[m][1] for m in range(k+1)] 
+        for j in neighbours_id: # xj is xi's neighbour
+            A[i][j] = np.exp(-S[i][j]/2/sigma/sigma)
+            A[j][i] = A[i][j] # mutually
+    return A
