@@ -12,14 +12,14 @@ from sklearn.manifold import SpectralEmbedding
 from sklearn.cluster import AgglomerativeClustering
 import pandas as pd
 
-###Input: dism1,dism2,dism3—— the distance matrices, corresponding to Cosine, Hamming and Pearson distance; 
+###Input: dism1,dism2,dism3—— the affinity matrices, corresponding to Cosine, Hamming and Pearson distance; 
 ###       dim—— the number of embedding dimensions;
 ###       C—— the number of clusters;
 ###output: dism—— the reconstructed novel distance matrix
 def SPC_Embedding(dism1,dism2,dism3,dim,C):
-    fs1 = SpectralEmbedding(n_components=dim, random_state=123, affinity='precomputed').fit_transform(myKNN(dism1, 2*C))
-    fs2 = SpectralEmbedding(n_components=dim, random_state=123, affinity='precomputed').fit_transform(myKNN(dism2, 2*C))
-    fs3 = SpectralEmbedding(n_components=dim, random_state=123, affinity='precomputed').fit_transform(myKNN(dism3, 2*C))
+    fs1 = SpectralEmbedding(n_components=dim, random_state=123, affinity='precomputed').fit_transform(dism1)
+    fs2 = SpectralEmbedding(n_components=dim, random_state=123, affinity='precomputed').fit_transform(dism2)
+    fs3 = SpectralEmbedding(n_components=dim, random_state=123, affinity='precomputed').fit_transform(dism3)
     fs_dis = pd.concat([pd.DataFrame(fs1),pd.DataFrame(fs2),pd.DataFrame(fs3)],axis=1)
     dism = squareform(pdist(fs_dis,metric='euclidean'))
     return(dism)
