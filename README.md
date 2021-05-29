@@ -51,7 +51,7 @@ Prepare your single-cell methylation dataset in the specified format. The recomm
    
     ###Execute the Python scripts or load all the functions in python compiler environment.
     
-    clus = find_clus(dism, k_max=11) ### find the optimal number of clusters c
+    clus = find_clus(dism, max_clus=11) ### find the optimal number of clusters c
     
     aff1 = myKNN(dism_cosine, 5) ###calculate the affinity matrix with neighbors = 5
     aff2 = myKNN(dism_hamming, 5)
