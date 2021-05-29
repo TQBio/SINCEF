@@ -51,11 +51,11 @@ Prepare your single-cell methylation dataset in the specified format. The recomm
    
     ###Execute the Python scripts or load all the functions in python compiler environment.
     
-    clus = find_clus(dism, 11) ### find the optimal number of clusters c
+    clus = find_clus(dism, k_max=11) ### find the optimal number of clusters c
     
-    aff1 = myKNN(dism_cosine, 2*c) ###calculate the affinity matrix with neighbors = 2*c
-    aff2 = myKNN(dism_hamming, 2*c)
-    aff3 = myKNN(dism_pearson, 2*c)
+    aff1 = myKNN(dism_cosine, 5) ###calculate the affinity matrix with neighbors = 5
+    aff2 = myKNN(dism_hamming, 5)
+    aff3 = myKNN(dism_pearson, 5)
     
     rdm = SPC_Embedding(aff1, aff2, aff3,2) ### default embedded dimension = 2;
     
