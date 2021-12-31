@@ -49,7 +49,7 @@ def get_silhouette_score(L,dism):
     score = metrics.silhouette_score(dism,L,metric='precomputed')
     return(score)
 
-###Input: S—— the distance matrix
+###Input: S—— the distance matrix; k—— the nearest neighbors
 ###output: A—— the affinity matrix
 def myKNN(S, k, sigma=1.0):
     N = len(S)
@@ -64,7 +64,7 @@ def myKNN(S, k, sigma=1.0):
     return A
 
 ###Input: dism—— the distance matrix; max_clus—— the maximum possible number of clusters
-###output: A—— the affinity matrix
+###output: scr—— the SI score at each value of k
 def find_clus(dism, max_clus):
     scr = []
     for i in range(2,max_clus):
